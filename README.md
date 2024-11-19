@@ -13,7 +13,7 @@ Clone this repository to your local machine and navigate into the project direct
 1. git clone https://github.com/HeReFanMi/Backend.git
 2. cd /project
 
-### **2. Configure Firebase database **
+### **2. Configure Firebase database**
 
 1. Try to creat a new firebase project, download the firebase json file which contains the configuration of your database, and add it to the root of this project.
 
@@ -29,7 +29,7 @@ Create a .env file in the root directory and add your API keys and other environ
     FIREBASE_KEY=your_firebase_json_file_name.json
     DATABASE_URL=your_firebase_database_url
 
-# **4. Build and Run the Docker Container**
+### **4. Build and Run the Docker Container**
 
 1. docker build -t backend .
 2. docker run --env-file .env -p 10000:10000 backend
