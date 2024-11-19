@@ -17,7 +17,8 @@ Clone this repository to your local machine and navigate into the project direct
 
 1. Try to creat a new firebase project, download the firebase json file which contains the configuration of your database, and add it to the root of this project.
 
-2. in the dockerfile, don't forget to rename the json file to your firebase json file by adding the next line 
+2. in the dockerfile, don't forget to rename the json file to your firebase json file by adding the next line :
+
     ADD your_firebase_json_file_name.json .
 
 ### **3. Configure Environment Variables**
