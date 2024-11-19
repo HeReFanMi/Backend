@@ -10,8 +10,8 @@ This repository contains the backend for the AI Text Validator application, buil
 
 Clone this repository to your local machine and navigate into the project directory:
 
-git clone https://github.com/HeReFanMi/Backend.git
-cd /project
+1. git clone https://github.com/HeReFanMi/Backend.git
+2. cd /project
 
 ### **2. Configure Environment Variables**
 
@@ -23,8 +23,8 @@ Create a .env file in the root directory and add your API keys and other environ
 
 ### **3. Build and Run the Docker Container**
 
-docker build -t backend .
-docker run --env-file .env -p 10000:10000 backend
+1. docker build -t backend .
+2. docker run --env-file .env -p 10000:10000 backend
 
 
 ### **4. Access the Application**
