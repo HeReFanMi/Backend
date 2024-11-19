@@ -39,3 +39,9 @@ Create a .env file in the root directory and add your API keys and other environ
 
 Once the container is running, access the Flask application:
 Local Access: http://127.0.0.1:10000
+
+### **6. Docker hub image**
+
+You can find the image of this backend in the docker hub following the link of the repository below : 
+
+    https://hub.docker.com/repository/docker/abdelaliichou/backend/general
