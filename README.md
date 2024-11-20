@@ -1,6 +1,6 @@
-# **AI Text Validator Backend**
+# **HeReFaNMI Backend**
 
-This repository contains the backend for the AI Text Validator application, built with Python Flask. The application is containerized using Docker for easy deployment and scalability.
+This repository contains the backend for the HeReFaNMI web application, built with Python Flask. The application is containerized using Docker for easy deployment and scalability.
 
 ---
 
