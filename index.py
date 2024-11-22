@@ -176,7 +176,13 @@ def Prompt(data) :
 
 
 # choose which backend to work with 
-def backendHandler(type, prompt) :
+def backendHandler(type, prompt):
+
+    if(type == "HeReFaNmi LLM") :
+
+        # connecting to llm backend
+        res = LLMrequest(prompt)
+        return res
 
     Model = ""
 
@@ -201,6 +207,30 @@ def backendHandler(type, prompt) :
     # getting response from open ai
     res = chat_completion.choices[0].message.content
     return res    
+
+def LLMrequest(prompt):
+
+    url = "http://127.0.0.1:5000/predict"
+
+    # Prompt to send in the POST request
+    payload = {
+        "text": prompt
+    }
+
+    try:
+        # Make a POST request with hamdi's llm server
+        response = requests.post(url, json=payload)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+
+            return response.json()
+        
+        else:
+            print("Failed to get a valid response. Status code:", response.status_code)
+
+    except Exception as e:
+        print("Error during request:", e)
 
 
 
