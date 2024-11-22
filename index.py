@@ -8,6 +8,8 @@ from firebase_admin import db
 from dotenv import load_dotenv
 import os
 import json
+import time
+import threading
 
 
 
@@ -28,6 +30,13 @@ app = Flask(__name__)
 CORS(app)
 
 
+# Shared storage for data between routes
+shared_data = {"response": None}
+
+# Lock to synchronize access to shared_data
+data_lock = threading.Lock()
+
+
 # open ai route
 @app.route("/medicalTalk", methods=["POST"])
 def openAi():
@@ -44,7 +53,24 @@ def openAi():
         
         prompt = Prompt(data)
 
-        res = backendHandler(backend, prompt)
+        res = ""
+
+        # Handeling if we are going to call the openAi servers, or our LLM
+        if(backend == "HeReFaNmi LLM"):
+
+            # connecting to RAG server
+            RAGrequest(data)     
+
+            # waiting for the response from the LLM server to be stored in shared_data
+            res = wait_for_response()
+
+            if res == None : 
+                return jsonify({"error": "Timeout waiting for LLM server response!"}), 504
+            
+        else :
+
+            # connecting to openAi server
+            res = backendHandler(backend, prompt)
         
         print(res)
 
@@ -75,6 +101,72 @@ def openAi():
         return jsonify({'error': str(e)}), 500   
 
 
+# Waiting timeout for the LLM response
+def wait_for_response(timeout=30):
+
+    # Wait for the external server to respond, with a timeout.
+    start_time = time.time()
+
+    while time.time() - start_time < timeout:
+        with data_lock:
+            if shared_data["response"] is not None:
+
+                # Retrieve and clear the shared response we got from the /response route
+                response = shared_data["response"]
+                shared_data["response"] = None
+                return response
+
+        # Wait a short time before checking again
+        time.sleep(0.5)
+
+    # Return None if no response within the timeout period
+    return None
+
+# Sending prompt to the RAG server
+def RAGrequest(prompt):
+
+    # Connecting to walid's backend to send him the user prompt 
+    url = "oualid url"
+
+    # Prompt to send in the POST request
+    payload = {
+        "text": prompt
+    }
+
+    try:
+        # Make a POST request to oualid's RAG server
+        response = requests.post(url, json=payload)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+            print("Prompt sent successfully!")
+            
+        else:
+            print("Failed to send the prompt to oualid's RAG server. Status code:", response.status_code)
+
+    except Exception as e:
+        print("Error during request:", e)
+
+
+# getting the response from Hamdi's LLM server    
+@app.route("/response", methods=["POST"]) 
+def LLMResponse():
+    try:
+
+        # getting the response from the LLM
+        data = request.get_json()
+        res = data.get("response", "")
+
+        # Store the LLM server response in shared_data
+        with data_lock:
+            shared_data["response"] = res
+
+        return "SUCCESS", 200
+
+    except Exception as e:
+        print(str(e))
+        return jsonify({'error': str(e)}), 500 
+
 
 def ClearSources(sources):
     working_links = []
@@ -89,7 +181,6 @@ def ClearSources(sources):
             working_links.append("{Web page is not working}")
             pass
     return working_links       
-
 
 
 def Prompt(data) : 
@@ -175,14 +266,8 @@ def Prompt(data) :
     </query>" '''
 
 
-# choose which backend to work with 
+# Choosing which openAi model we want to work with 
 def backendHandler(type, prompt):
-
-    if(type == "HeReFaNmi LLM") :
-
-        # connecting to llm backend
-        res = LLMrequest(prompt)
-        return res
 
     Model = ""
 
@@ -194,7 +279,7 @@ def backendHandler(type, prompt):
         Model = "gpt-3.5-turbo" 
         print("Working wih gpt 3 turbo in the open ai ")    
 
-    # calling the api
+    # calling the openAi api
     chat_completion = client.chat.completions.create(
     messages=[
     {
@@ -207,31 +292,6 @@ def backendHandler(type, prompt):
     # getting response from open ai
     res = chat_completion.choices[0].message.content
     return res    
-
-def LLMrequest(prompt):
-
-    url = "http://127.0.0.1:5000/predict"
-
-    # Prompt to send in the POST request
-    payload = {
-        "text": prompt
-    }
-
-    try:
-        # Make a POST request with hamdi's llm server
-        response = requests.post(url, json=payload)
-        
-        # Check if the request was successful
-        if response.status_code == 200:
-
-            return response.json()
-        
-        else:
-            print("Failed to get a valid response. Status code:", response.status_code)
-
-    except Exception as e:
-        print("Error during request:", e)
-
 
 
 # saving the user rating route    
