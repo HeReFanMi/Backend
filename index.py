@@ -135,11 +135,12 @@ def wait_for_response(timeout=30):
 def RAGrequest(prompt):
 
     # Connecting to walid's backend to send him the user prompt 
-    url = "oualid url"
+    url = "http://127.0.1:5000/find_similar_chunks"
 
     # Prompt to send in the POST request
     payload = {
-        "text": prompt
+        "prompt": prompt,
+        "top_n": 3
     }
 
     try:
@@ -165,6 +166,10 @@ def LLMResponse():
         # getting the response from the LLM
         data = request.get_json()
         res = data.get("response", "")
+
+        print("################################")
+        print("dataaa from the server", res)
+        print("#################################")
 
         # Store the LLM server response in shared_data
         with data_lock:
