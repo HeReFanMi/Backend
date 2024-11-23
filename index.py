@@ -30,7 +30,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-# Shared storage for data between routes
+# Shared storage for data between /medicalTalk and /response routes
 shared_data = {"response": None}
 
 # Lock to synchronize access to shared_data
@@ -64,8 +64,16 @@ def openAi():
             # waiting for the response from the LLM server to be stored in shared_data
             res = wait_for_response()
 
+            # terminate the connection and make a simple response so the app don't crash 
             if res == None : 
-                return jsonify({"error": "Timeout waiting for LLM server response!"}), 504
+
+                res = """{
+                        "medical": "True",
+                        "news": "False",
+                        "label": "Doubtful",
+                        "reasoning": "We can't respond to your statment due to the waiting timeout for the LLM to respond, PLEASE TRY LATER!",
+                        "sources": []
+                }"""
             
         else :
 
@@ -121,6 +129,7 @@ def wait_for_response(timeout=30):
 
     # Return None if no response within the timeout period
     return None
+
 
 # Sending prompt to the RAG server
 def RAGrequest(prompt):
